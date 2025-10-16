@@ -1,47 +1,63 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationData.Data;
-
+using WebApplicationData.Interfaces;
+using WebApplicationData.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// 1. Додавання сервісів у контейнер DI
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+// Реєстрація DbContext
 builder.Services.AddDbContext<WebApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Для зручності розробки
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<WebApplicationDbContext>();
+// Реєстрація Identity з кастомним користувачем WebApplicationUser
+builder.Services.AddDefaultIdentity<WebApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false; 
+})
+.AddEntityFrameworkStores<WebApplicationDbContext>();
+
+// Реєстрація власних репозиторіїв
+builder.Services.AddScoped<IWebRepository, WebRepository>();
+
+// Додавання MVC та Razor Pages
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 2. Налаштування HTTP pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseMigrationsEndPoint();
+    app.UseMigrationsEndPoint(); // Для автоматичного застосування міграцій у Dev
 }
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    app.UseHsts(); // HSTS для продакшн
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Для wwwroot
+
 app.UseRouting();
 
+// **Обов’язково спочатку аутентифікація, потім авторизація**
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
+// Маршрути для контролерів та Razor Pages
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages()
-   .WithStaticAssets();
+app.MapRazorPages();
 
 app.Run();

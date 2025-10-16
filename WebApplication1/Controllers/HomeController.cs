@@ -1,20 +1,28 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using WebApplication1.Models;
+using WebApplicationData.Data;
+using WebApplicationData.Interfaces;
+using WebApplicationData.Repositories;
+
 
 namespace WebApplication1.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IWebRepository _repository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IWebRepository repository)
         {
             _logger = logger;
+            _repository = repository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
+            var users = await _repository.ReadAll<WebApplicationUser>().ToListAsync();
             return View();
         }
 
@@ -22,6 +30,7 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WebApplicationData.Data
 {
-    public class WebApplicationDbContext : IdentityDbContext
+    public class WebApplicationDbContext : IdentityDbContext<WebApplicationUser>
     {
         public WebApplicationDbContext(DbContextOptions<WebApplicationDbContext> options)
             : base(options)

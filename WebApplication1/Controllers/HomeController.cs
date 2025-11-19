@@ -7,6 +7,7 @@ using WebApplicationData.Data;
 using WebApplicationData.Interfaces;
 using WebApplicationData.Models.Configurations; //  додано для доступу до MyConfiguration
 using WebApplicationData.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApplication1.Controllers
@@ -25,7 +26,7 @@ namespace WebApplication1.Controllers
             _repository = repository;
             _config = config;
         }
-
+        [AllowAnonymous]
         public async Task<IActionResult> IndexAsync()
         {
             var users = await _repository.ReadAll<WebApplicationUser>().ToListAsync();
@@ -34,7 +35,7 @@ namespace WebApplication1.Controllers
 
             return View(users);
         }
-
+        [AllowAnonymous]
         public IActionResult Privacy()
         {
 

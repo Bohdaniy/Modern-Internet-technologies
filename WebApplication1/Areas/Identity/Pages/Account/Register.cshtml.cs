@@ -97,11 +97,15 @@ namespace WebApplication1.Areas.Identity.Pages.Account
                     FirstName = Input.FirstName,
                     LastName = Input.LastName
                 };
-
                 var result = await _userManager.CreateAsync(user, Input.Password);
+
 
                 if (result.Succeeded)
                 {
+                    await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("IsVerifiedClient", "true"));
+                    await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("WorkingHours", "1"));
+                    await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("IsMentor", "true"));
+
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);

@@ -14,5 +14,6 @@ namespace WebApplicationData.Data
             : base(options)
         {
         }
+        public DbSet<AppResource> AppResources { get; set; }
     }
 }

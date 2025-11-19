@@ -1,0 +1,40 @@
+﻿@model IEnumerable<WebApplicationData.Data.AppResource>
+
+<h2>Список Ресурсів</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Створити Новий Ресурс</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Назва</th>
+            <th>Автор</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Title</td>
+                <td>
+                    @if (item.Author != null)
+                    {
+                        @($"{item.Author.FirstName} {item.Author.LastName}")
+                    }
+                    else
+                    {
+                        <span class="text-muted">Невідомий (ID: @item.AuthorId)</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Редагувати</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

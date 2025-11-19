@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization; 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization; 
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
+using WebApplication1.Authorization;
 using WebApplicationData.Data;
 using WebApplicationData.Interfaces;
-using WebApplicationData.Repositories;
 using WebApplicationData.Models.Configurations;
+using WebApplicationData.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +54,7 @@ builder.Services.AddScoped<IWebRepository, WebRepository>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+/*
 // --- 4. НАЛАШТУВАННЯ RATE LIMITING (ЗАВДАННЯ 6) ---
 builder.Services.AddRateLimiter(options =>
 {
@@ -84,7 +88,7 @@ builder.Services.AddRateLimiter(options =>
                 partitionKey: $"ip:{ip}",
                 factory: _ => new FixedWindowRateLimiterOptions
                 {
-                    PermitLimit = 5, // 5 запитів на хвилину для гостей (для тесту)
+                    PermitLimit = 20, // 5 запитів на хвилину для гостей (для тесту)
                     Window = TimeSpan.FromMinutes(1),
                     QueueLimit = 0,
                     QueueProcessingOrder = QueueProcessingOrder.OldestFirst
@@ -92,14 +96,48 @@ builder.Services.AddRateLimiter(options =>
         }
     });
 });
+*/
+// ЛАБ 4 | Завдання 1: Закриття доступу до контролерів за замовчуванням
+builder.Services.AddControllersWithViews(options =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
 
+
+builder.Services.AddSingleton<IAuthorizationHandler, IsAuthorHandler>();       // Завдання 3
+builder.Services.AddSingleton<IAuthorizationHandler, MinHoursHandler>();       // Завдання 4
+builder.Services.AddSingleton<IAuthorizationHandler, ForumAccessHandler>();    // Завдання 5
+
+//  НАЛАШТУВАННЯ ПОЛІТИК АВТОРИЗАЦІЇ 
+
+builder.Services.AddAuthorization(options =>
+{
+    // ЛАБ 4 | Завдання 2
+    options.AddPolicy("ArchivePolicy", policy =>
+        policy.RequireClaim("IsVerifiedClient"));
+
+    // ЛАБ 4 | Завдання 3 (Ресурсна авторизація)
+    options.AddPolicy("ResourceOwner", policy =>
+        policy.Requirements.Add(new IsAuthorRequirement()));
+
+    // ЛАБ 4 | Завдання 4 (Вимога годин)
+    options.AddPolicy("PremiumContent", policy =>
+        policy.Requirements.Add(new MinHoursRequirement(100)));
+
+    // ЛАБ 4 | Завдання 5 (OR логіка для форуму)
+    options.AddPolicy("ForumPolicy", policy =>
+        policy.Requirements.Add(new ForumAccessRequirement()));
+});
 var app = builder.Build();
 
 // --- 5. НАЛАШТУВАННЯ PIPELINE ---
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRateLimiter(); // 👈 Обов'язково перед UseRouting
+//app.UseRateLimiter(); 
 
 app.UseRouting();
 
@@ -110,6 +148,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages();
+app.MapRazorPages()
+    .RequireRateLimiting("PartitionedPolicy")
+    .AllowAnonymous(); 
 
 app.Run();

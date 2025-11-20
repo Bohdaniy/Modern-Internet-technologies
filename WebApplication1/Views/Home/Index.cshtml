@@ -1,8 +1,26 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <!-- Текст із файлу ресурсів (Index.*.resx) -->
+    <h1 class="display-4">@Localizer["HeaderTitle"]</h1>
+
+    <!-- Текст із контролера -->
+    <div class="alert alert-info">
+        @ViewData["MessageFromController"]
+    </div>
+
+    <!-- [ЛАБ 5] Перевірка форматів дати та валюти -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5>Тест форматів:</h5>
+            <p>Поточна дата: <strong>@DateTime.Now.ToLongDateString()</strong></p>
+            <p>Валюта (1000): <strong>@(1000.ToString("C"))</strong></p>
+        </div>
+    </div>
 </div>
+

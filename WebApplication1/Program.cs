@@ -180,6 +180,19 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// [ЛАБ 5] Middleware локалізації має бути одним з перших
+app.UseRequestLocalization();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseMigrationsEndPoint();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
 app.UseRateLimiter();
 app.UseRouting();
 

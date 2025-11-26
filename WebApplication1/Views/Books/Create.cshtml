@@ -1,0 +1,70 @@
+﻿@model WebApplication1.Models.BookViewModel
+
+@{
+    ViewData["Title"] = "Створити книгу";
+}
+
+<h2>Створити нову книгу</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <!-- Загальний список помилок -->
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Назва (Remote Validation) -->
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label asp-for="AuthorEmail" class="form-label"></label>
+                <input asp-for="AuthorEmail" class="form-control" />
+                <span asp-validation-for="AuthorEmail" class="text-danger"></span>
+            </div>
+
+            <!-- Confirm Email -->
+            <div class="mb-3">
+                <label asp-for="ConfirmAuthorEmail" class="form-label"></label>
+                <input asp-for="ConfirmAuthorEmail" class="form-control" />
+                <span asp-validation-for="ConfirmAuthorEmail" class="text-danger"></span>
+            </div>
+
+            <!-- Year -->
+            <div class="mb-3">
+                <label asp-for="Year" class="form-label"></label>
+                <input asp-for="Year" class="form-control" />
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-3">
+                <label asp-for="Price" class="form-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <!-- Discount (Dependent Validation) -->
+            <div class="mb-3">
+                <label asp-for="Discount" class="form-label"></label>
+                <input asp-for="Discount" class="form-control" />
+                <span asp-validation-for="Discount" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <input type="submit" value="Створити" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Підключення скриптів для клієнтської валідації -->
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

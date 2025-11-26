@@ -15,5 +15,6 @@ namespace WebApplicationData.Data
         {
         }
         public DbSet<AppResource> AppResources { get; set; }
+        public DbSet<Book> Books { get; set; }
     }
 }

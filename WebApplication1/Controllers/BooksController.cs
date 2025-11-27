@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SQLitePCL;
+using System.Threading.Tasks;
 using WebApplication1.Models;
 using WebApplicationData.Data;       
 using WebApplicationData.Interfaces;
@@ -15,7 +17,25 @@ namespace WebApplication1.Controllers
             _repository = repository;
         }
 
-        // 1Відображення форми
+        // Додаємо параметр pageNumber (за замовчуванням = 1)
+        public async Task<IActionResult> Index(int? pageNumber)
+        {
+            // Отримуємо запит до БД (але ще не виконуємо його!)
+            
+            var booksQuery = _repository.ReadAll<Book>();
+
+            // Визначаємо розмір сторінки 
+            int pageSize = 5;
+
+            // Використовуємо метод CreateAsync для отримання конкретної сторінки
+            // pageNumber ?? 1 означає: якщо pageNumber == null, то беремо 1
+            var paginatedBooks = await PaginatedList<Book>.CreateAsync(booksQuery, pageNumber ?? 1, pageSize);
+
+            // Передаємо пагінований список у View
+            return View(paginatedBooks);
+        }
+
+        // Відображення форми
         [HttpGet]
         public IActionResult Create()
         {

@@ -1,0 +1,59 @@
+﻿@using WebApplication1.Models
+@model PaginatedList<WebApplicationData.Data.Book>
+
+@{
+    ViewData["Title"] = "Книги";
+}
+
+<h2>Список Книг</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Додати нову</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Автор</th>
+            <th>Рік</th>
+            <th>Ціна</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.AuthorEmail</td>
+                <td>@item.Year</td>
+                <td>@item.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    // Логіка для блокування кнопок
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<!-- КНОПКИ ПАГІНАЦІЇ -->
+<div class="d-flex justify-content-center gap-2">
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       class="btn btn-outline-primary @prevDisabled">
+        &laquo; Попередня
+    </a>
+
+    <span class="align-self-center">
+        Сторінка @Model.PageIndex з @Model.TotalPages
+    </span>
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       class="btn btn-outline-primary @nextDisabled">
+        Наступна &raquo;
+    </a>
+</div>
